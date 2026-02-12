@@ -1,5 +1,5 @@
 ---
-name: typescript-react-reviewer
+name: client-typescript-react-reviewer
 description: "Expert code reviewer for TypeScript + React 17 applications. Use when reviewing React code, identifying anti-patterns, evaluating Redux + Saga state management, or assessing code maintainability. Triggers: code review requests, PR reviews, React architecture evaluation, identifying code smells, TypeScript type safety checks, useEffect abuse detection, Redux/Saga pattern review."
 ---
 
