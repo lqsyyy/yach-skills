@@ -118,7 +118,7 @@
 - [ ] Provider value is memoized if object
 
 ```typescript
-// ✅ Correct context pattern
+// Correct context pattern
 const MyContext = createContext<ContextType | null>(null);
 
 function useMyContext() {
@@ -246,7 +246,7 @@ Use queries in this order (Testing Library best practice):
 ### Critical Issue
 
 ```
-🚫 **Critical:** [Issue description]
+**Critical:** [Issue description]
 
 This will cause [bug/leak/crash] because [reason].
 
@@ -260,7 +260,7 @@ This will cause [bug/leak/crash] because [reason].
 ### Suggestion
 
 ```
-💡 **Suggestion:** [Improvement description]
+**Suggestion:** [Improvement description]
 
 This would improve [maintainability/performance/readability] by [reason].
 
@@ -271,7 +271,7 @@ This would improve [maintainability/performance/readability] by [reason].
 ### Question
 
 ```
-❓ **Question:** [Clarification needed]
+**Question:** [Clarification needed]
 
 Is this intentional? [Context for why you're asking]
 ```

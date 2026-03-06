@@ -6,10 +6,10 @@
 Use `call` for any function call (especially promises) to make them testable and handled by the middleware.
 
 ```typescript
-// ✅ CORRECT
+// CORRECT
 const result = yield call(api.fetchUser, userId);
 
-// ❌ WRONG
+// WRONG
 const result = yield api.fetchUser(userId); // Hard to test, bypasses middleware logic
 ```
 
@@ -17,10 +17,10 @@ const result = yield api.fetchUser(userId); // Hard to test, bypasses middleware
 Use `put` to dispatch actions to the store.
 
 ```typescript
-// ✅ CORRECT
+// CORRECT
 yield put({ type: 'FETCH_SUCCESS', payload: data });
 
-// ❌ WRONG
+// WRONG
 dispatch({ type: 'FETCH_SUCCESS', payload: data }); // Don't use dispatch inside sagas
 ```
 
@@ -29,7 +29,7 @@ dispatch({ type: 'FETCH_SUCCESS', payload: data }); // Don't use dispatch inside
 - **takeEvery**: Allows multiple tasks to run concurrently.
 
 ```typescript
-// ✅ RECOMMENDED for Fetching
+// RECOMMENDED for Fetching
 yield takeLatest(ActionTypes.FETCH_DATA, fetchDataSaga);
 ```
 
@@ -55,7 +55,7 @@ function* fetchDataSaga(action) {
 Use `all` to run multiple effects in parallel.
 
 ```typescript
-// ✅ Parallel
+// Parallel
 const [users, posts] = yield all([
   call(api.fetchUsers),
   call(api.fetchPosts)
@@ -68,7 +68,7 @@ const [users, posts] = yield all([
 - **fork**: Non-blocking (starts a task in the background).
 
 ```typescript
-// ✅ Non-blocking background task
+// Non-blocking background task
 yield fork(trackAnalyticsSaga, 'page_view');
 ```
 

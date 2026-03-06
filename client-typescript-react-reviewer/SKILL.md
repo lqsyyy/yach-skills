@@ -9,7 +9,7 @@ Expert code reviewer with deep knowledge of React 17, Redux, Redux-Saga, Ant Des
 
 ## Review Priority Levels
 
-### 🚫 Critical (Block Merge)
+### Critical (Block Merge)
 
 These issues cause bugs, memory leaks, or architectural problems:
 
@@ -26,7 +26,7 @@ These issues cause bugs, memory leaks, or architectural problems:
 | Illegal dependency | `_public`, `pages`, `plugins` importing from `im` |
 | Missing `try-catch` | Critical in Sagas, JSON parsing, and async IO |
 
-### ⚠️ High Priority
+### High Priority
 
 | Issue | Impact |
 |-------|--------|
@@ -37,7 +37,7 @@ These issues cause bugs, memory leaks, or architectural problems:
 | Controlled input initialized with `undefined` | React warning |
 | Missing error handling in Sagas | Crashes the generator/application |
 
-### 📝 Architecture/Style
+### Architecture/Style
 
 | Issue | Recommendation |
 |-------|----------------|
@@ -52,24 +52,24 @@ These issues cause bugs, memory leaks, or architectural problems:
 ### useEffect Abuse (Most Common Anti-Pattern)
 
 ```typescript
-// ❌ WRONG: Derived state in useEffect
+// WRONG: Derived state in useEffect
 const [firstName, setFirstName] = useState('');
 const [fullName, setFullName] = useState('');
 useEffect(() => {
   setFullName(firstName + ' ' + lastName);
 }, [firstName, lastName]);
 
-// ✅ CORRECT: Compute during render
+// CORRECT: Compute during render
 const fullName = firstName + ' ' + lastName;
 ```
 
 ```typescript
-// ❌ WRONG: Event logic in useEffect
+// WRONG: Event logic in useEffect
 useEffect(() => {
   if (product.isInCart) showNotification('Added!');
 }, [product]);
 
-// ✅ CORRECT: Logic in event handler
+// CORRECT: Logic in event handler
 function handleAddToCart() {
   addToCart(product);
   showNotification('Added!');
@@ -79,13 +79,13 @@ function handleAddToCart() {
 ### Redux + Saga Patterns
 
 ```typescript
-// ❌ WRONG: Missing error handling in Saga (Critical)
+// WRONG: Missing error handling in Saga (Critical)
 function* fetchDataSaga(action) {
   const data = yield call(api.fetchData, action.payload);
   yield put(actions.fetchSuccess(data));
 }
 
-// ✅ CORRECT (Mandatory): Try-catch in Saga
+// CORRECT (Mandatory): Try-catch in Saga
 function* fetchDataSaga(action) {
   try {
     const data = yield call(api.fetchData, action.payload);
@@ -99,12 +99,12 @@ function* fetchDataSaga(action) {
 ### TypeScript Red Flags
 
 ```typescript
-// ❌ Red flags to catch
+// Red flags to catch
 const data: any = response;           // Unsafe any
 const items = arr[10];                // Missing undefined check
 const App: React.FC<Props> = () => {}; // Discouraged pattern
 
-// ✅ Preferred patterns
+// Preferred patterns
 const data: ResponseType = response;
 const items = arr[10]; // with noUncheckedIndexedAccess
 const App = ({ prop }: Props) => {};  // Explicit props
@@ -151,12 +151,12 @@ Always verify that IPC listeners and DOM event listeners have corresponding clea
 ### Redux Mutation Anti-Pattern
 
 ```typescript
-// ❌ NEVER mutate state in Reducers
+// NEVER mutate state in Reducers
 case 'ADD_TODO':
   state.todos.push(action.payload);
   return state;
 
-// ✅ Redux Toolkit or Immutable updates
+// Redux Toolkit or Immutable updates
 case 'ADD_TODO':
   return { ...state, todos: [...state.todos, action.payload] };
 ```

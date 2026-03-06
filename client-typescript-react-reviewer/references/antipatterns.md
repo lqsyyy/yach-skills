@@ -7,7 +7,7 @@
 **Problem:** Extra render cycle, state synchronization bugs.
 
 ```typescript
-// ❌ ANTI-PATTERN
+// ANTI-PATTERN
 const [firstName, setFirstName] = useState('Taylor');
 const [lastName, setLastName] = useState('Swift');
 const [fullName, setFullName] = useState('');
@@ -16,7 +16,7 @@ useEffect(() => {
   setFullName(firstName + ' ' + lastName); // Extra render!
 }, [firstName, lastName]);
 
-// ✅ CORRECT: Calculate during render
+// CORRECT: Calculate during render
 const fullName = firstName + ' ' + lastName;
 ```
 
@@ -27,14 +27,14 @@ const fullName = firstName + ' ' + lastName;
 **Problem:** Side effect runs on mount/remount, not just on user action.
 
 ```typescript
-// ❌ ANTI-PATTERN: Notification shows on page reload too
+// ANTI-PATTERN: Notification shows on page reload too
 useEffect(() => {
   if (product.isInCart) {
     showNotification(`Added ${product.name}!`);
   }
 }, [product]);
 
-// ✅ CORRECT: Logic in event handler
+// CORRECT: Logic in event handler
 function handleBuyClick() {
   addToCart(product);
   showNotification(`Added ${product.name}!`);
@@ -48,7 +48,7 @@ function handleBuyClick() {
 **Problem:** Extra render, harder to trace state flow.
 
 ```typescript
-// ❌ ANTI-PATTERN
+// ANTI-PATTERN
 function ProfilePage({ userId }: { userId: string }) {
   const [comment, setComment] = useState('');
   
@@ -57,7 +57,7 @@ function ProfilePage({ userId }: { userId: string }) {
   }, [userId]);
 }
 
-// ✅ CORRECT: Use key to reset
+// CORRECT: Use key to reset
 function ProfilePage({ userId }: { userId: string }) {
   return <Profile userId={userId} key={userId} />;
 }
@@ -70,14 +70,14 @@ function ProfilePage({ userId }: { userId: string }) {
 **Problem:** Race conditions, memory leaks, setting state on unmounted component.
 
 ```typescript
-// ❌ ANTI-PATTERN: No cleanup
+// ANTI-PATTERN: No cleanup
 useEffect(() => {
   fetch(`/api/user/${userId}`)
     .then(res => res.json())
     .then(data => setUser(data)); // May set state after unmount
 }, [userId]);
 
-// ✅ CORRECT: AbortController for cleanup
+// CORRECT: AbortController for cleanup
 useEffect(() => {
   const controller = new AbortController();
   
@@ -91,7 +91,7 @@ useEffect(() => {
   return () => controller.abort();
 }, [userId]);
 
-// ✅ BETTER: Use TanStack Query
+// BETTER: Use TanStack Query
 const { data: user } = useQuery({
   queryKey: ['user', userId],
   queryFn: () => fetch(`/api/user/${userId}`).then(r => r.json()),
@@ -103,12 +103,12 @@ const { data: user } = useQuery({
 **Problem:** Memory leaks, event handlers accumulate.
 
 ```typescript
-// ❌ ANTI-PATTERN: No cleanup
+// ANTI-PATTERN: No cleanup
 useEffect(() => {
   window.addEventListener('resize', handleResize);
 }, []);
 
-// ✅ CORRECT
+// CORRECT
 useEffect(() => {
   window.addEventListener('resize', handleResize);
   return () => window.removeEventListener('resize', handleResize);
@@ -120,7 +120,7 @@ useEffect(() => {
 ### 1. Missing Dependencies (Stale Closures)
 
 ```typescript
-// ❌ ANTI-PATTERN: count is stale
+// ANTI-PATTERN: count is stale
 useEffect(() => {
   const id = setInterval(() => {
     setCount(count + increment); // Uses stale count!
@@ -128,7 +128,7 @@ useEffect(() => {
   return () => clearInterval(id);
 }, []); // Missing count and increment
 
-// ✅ CORRECT: Functional update removes count dependency
+// CORRECT: Functional update removes count dependency
 useEffect(() => {
   const id = setInterval(() => {
     setCount(c => c + increment);
@@ -140,18 +140,18 @@ useEffect(() => {
 ### 2. Object/Array Dependencies (Infinite Loops)
 
 ```typescript
-// ❌ ANTI-PATTERN: New object every render = infinite loop
+// ANTI-PATTERN: New object every render = infinite loop
 const options = { userId, page: 1 };
 useEffect(() => {
   fetchData(options);
 }, [options]); // options is new object every render!
 
-// ✅ CORRECT: Use primitives
+// CORRECT: Use primitives
 useEffect(() => {
   fetchData({ userId, page: 1 });
 }, [userId]);
 
-// ✅ ALTERNATIVE: Memoize if object is needed
+// ALTERNATIVE: Memoize if object is needed
 const options = useMemo(() => ({ userId, page: 1 }), [userId]);
 ```
 
@@ -160,13 +160,13 @@ const options = useMemo(() => ({ userId, page: 1 }), [userId]);
 **This is almost always wrong.** The linter is catching real bugs.
 
 ```typescript
-// ❌ ANTI-PATTERN: Hiding the bug
+// ANTI-PATTERN: Hiding the bug
 useEffect(() => {
   doSomething(value);
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []); // value will be stale!
 
-// ✅ CORRECT: Fix the actual issue
+// CORRECT: Fix the actual issue
 useEffect(() => {
   doSomething(value);
 }, [value]);
@@ -181,13 +181,13 @@ useEffect(() => {
 ### Direct Array Mutation
 
 ```typescript
-// ❌ ANTI-PATTERN: Same reference, no re-render
+// ANTI-PATTERN: Same reference, no re-render
 const addItem = (item: Item) => {
   items.push(item);
   setItems(items); // React sees same reference, skips update
 };
 
-// ✅ CORRECT
+// CORRECT
 const addItem = (item: Item) => {
   setItems([...items, item]);
 };
@@ -196,13 +196,13 @@ const addItem = (item: Item) => {
 ### Direct Object Mutation
 
 ```typescript
-// ❌ ANTI-PATTERN
+// ANTI-PATTERN
 const updateUser = (name: string) => {
   user.name = name;
   setUser(user); // Same reference
 };
 
-// ✅ CORRECT
+// CORRECT
 const updateUser = (name: string) => {
   setUser({ ...user, name });
 };
@@ -210,7 +210,7 @@ const updateUser = (name: string) => {
 
 ### Immutable Operations Reference
 
-| Operation | ❌ Mutating | ✅ Immutable |
+| Operation | Mutating | Immutable |
 |-----------|------------|-------------|
 | Add | `arr.push(item)` | `[...arr, item]` |
 | Add at start | `arr.unshift(item)` | `[item, ...arr]` |
@@ -224,13 +224,13 @@ const updateUser = (name: string) => {
 ### 1. useMemo for Simple Calculations
 
 ```typescript
-// ❌ ANTI-PATTERN: Overhead > benefit
+// ANTI-PATTERN: Overhead > benefit
 const fullName = useMemo(
   () => `${firstName} ${lastName}`,
   [firstName, lastName]
 );
 
-// ✅ CORRECT: Just compute it
+// CORRECT: Just compute it
 const fullName = `${firstName} ${lastName}`;
 ```
 
@@ -239,7 +239,7 @@ const fullName = `${firstName} ${lastName}`;
 ### 2. useCallback Without React.memo
 
 ```typescript
-// ❌ ANTI-PATTERN: useCallback does nothing here
+// ANTI-PATTERN: useCallback does nothing here
 function Parent() {
   const handleClick = useCallback(() => {
     console.log('clicked');
@@ -248,7 +248,7 @@ function Parent() {
   return <Child onClick={handleClick} />; // Child still re-renders!
 }
 
-// ✅ CORRECT: Combine with React.memo
+// CORRECT: Combine with React.memo
 const Child = React.memo(function Child({ onClick }: { onClick: () => void }) {
   return <button onClick={onClick}>Click</button>;
 });
@@ -265,7 +265,7 @@ function Parent() {
 ### 3. Inline Objects/Functions in JSX to Memoized Children
 
 ```typescript
-// ❌ ANTI-PATTERN: New object every render defeats memo
+// ANTI-PATTERN: New object every render defeats memo
 const MemoizedList = React.memo(List);
 
 function Parent() {
@@ -277,7 +277,7 @@ function Parent() {
   );
 }
 
-// ✅ CORRECT: Stable references
+// CORRECT: Stable references
 const style = { color: 'red' }; // Or useMemo if dynamic
 
 function Parent() {
@@ -292,11 +292,11 @@ function Parent() {
 ### 1. Using `any` Type
 
 ```typescript
-// ❌ ANTI-PATTERN
+// ANTI-PATTERN
 const data: any = await response.json();
 console.log(data.user.name); // No type safety
 
-// ✅ CORRECT
+// CORRECT
 interface ApiResponse {
   user: { name: string; email: string };
 }
@@ -307,12 +307,12 @@ console.log(data.user.name); // Type safe
 ### 2. React.FC for Components
 
 ```typescript
-// ❌ DISCOURAGED
+// DISCOURAGED
 const App: React.FC<AppProps> = ({ message }) => {
   return <div>{message}</div>;
 };
 
-// ✅ PREFERRED
+// PREFERRED
 const App = ({ message }: AppProps) => {
   return <div>{message}</div>;
 };
@@ -323,13 +323,13 @@ const App = ({ message }: AppProps) => {
 ### 3. Optional Props Creating Invalid States
 
 ```typescript
-// ❌ ANTI-PATTERN: Can have value without onChange
+// ANTI-PATTERN: Can have value without onChange
 interface InputProps {
   value?: string;
   onChange?: (value: string) => void;
 }
 
-// ✅ CORRECT: Discriminated union
+// CORRECT: Discriminated union
 type ControlledProps = { value: string; onChange: (v: string) => void };
 type UncontrolledProps = { value?: never; onChange?: never; defaultValue?: string };
 type InputProps = { label: string } & (ControlledProps | UncontrolledProps);
@@ -338,11 +338,11 @@ type InputProps = { label: string } & (ControlledProps | UncontrolledProps);
 ### 4. Array Access Without Undefined Check
 
 ```typescript
-// ❌ ANTI-PATTERN (without noUncheckedIndexedAccess)
+// ANTI-PATTERN (without noUncheckedIndexedAccess)
 const arr: string[] = ['a', 'b'];
 console.log(arr[10].toUpperCase()); // Runtime error!
 
-// ✅ CORRECT
+// CORRECT
 const item = arr[10];
 if (item) {
   console.log(item.toUpperCase());
@@ -356,7 +356,7 @@ Enable `noUncheckedIndexedAccess: true` in tsconfig.
 ### 1. Component Defined Inside Another Component
 
 ```typescript
-// ❌ ANTI-PATTERN: Inner remounts every render
+// ANTI-PATTERN: Inner remounts every render
 function Parent() {
   function Child() { // New component identity each render!
     return <div>Child</div>;
@@ -364,7 +364,7 @@ function Parent() {
   return <Child />;
 }
 
-// ✅ CORRECT: Define outside
+// CORRECT: Define outside
 function Child() {
   return <div>Child</div>;
 }
@@ -377,12 +377,12 @@ function Parent() {
 ### 2. Index as Key in Dynamic Lists
 
 ```typescript
-// ❌ ANTI-PATTERN: State corruption on reorder
+// ANTI-PATTERN: State corruption on reorder
 {items.map((item, index) => (
   <Item key={index} item={item} /> // BAD
 ))}
 
-// ✅ CORRECT: Stable unique ID
+// CORRECT: Stable unique ID
 {items.map(item => (
   <Item key={item.id} item={item} />
 ))}
@@ -401,7 +401,7 @@ function Parent() {
 ### 4. Prop Drilling > 3 Levels
 
 ```typescript
-// ❌ ANTI-PATTERN
+// ANTI-PATTERN
 <GrandParent user={user}>
   <Parent user={user}>
     <Child user={user}>
@@ -410,7 +410,7 @@ function Parent() {
   </Parent>
 </GrandParent>
 
-// ✅ CORRECT: Context or composition
+// CORRECT: Context or composition
 const UserContext = createContext<User | null>(null);
 
 function GrandParent({ user }: { user: User }) {
@@ -439,12 +439,12 @@ function GrandParent({ user }: { user: User }) {
 **Problem:** The effect won't be executed by the middleware, or the saga won't wait for completion.
 
 ```typescript
-// ❌ ANTI-PATTERN
+// ANTI-PATTERN
 function* mySaga() {
   call(api.fetch); // Missing yield!
 }
 
-// ✅ CORRECT
+// CORRECT
 function* mySaga() {
   yield call(api.fetch);
 }
@@ -454,12 +454,12 @@ function* mySaga() {
 **Problem:** Components won't re-render, time-travel debugging breaks.
 
 ```typescript
-// ❌ ANTI-PATTERN
+// ANTI-PATTERN
 case 'UPDATE_USER':
   state.user.name = action.payload;
   return state;
 
-// ✅ CORRECT
+// CORRECT
 case 'UPDATE_USER':
   return { ...state, user: { ...state.user, name: action.payload } };
 ```
@@ -468,13 +468,13 @@ case 'UPDATE_USER':
 **Problem:** One failing or blocking saga stops all others.
 
 ```typescript
-// ❌ ANTI-PATTERN
+// ANTI-PATTERN
 function* rootSaga() {
   yield call(userSaga); // Blocks until userSaga finishes
   yield call(postSaga);
 }
 
-// ✅ CORRECT
+// CORRECT
 function* rootSaga() {
   yield all([
     fork(userSaga),
@@ -493,13 +493,13 @@ function* rootSaga() {
 - **Storage/IPC:** IO or IPC failures.
 
 ```typescript
-// ❌ ANTI-PATTERN: Silent failure potential
+// ANTI-PATTERN: Silent failure potential
 async function fetchData() {
   const res = await api.get(); // If this fails, UI might hang
   setData(res);
 }
 
-// ✅ CORRECT: Graceful handling
+// CORRECT: Graceful handling
 async function fetchData() {
   setLoading(true);
   try {
@@ -518,10 +518,10 @@ async function fetchData() {
 Avoid calling `JSON.parse()` without protection.
 
 ```typescript
-// ❌ ANTI-PATTERN: Crashes on invalid string
+// ANTI-PATTERN: Crashes on invalid string
 const data = JSON.parse(str);
 
-// ✅ CORRECT: Use safe parsing
+// CORRECT: Use safe parsing
 const data = util.nimUtil.getJson(str) || {};
 // OR
 try {
@@ -532,7 +532,7 @@ try {
 ```
 
 ```typescript
-// ❌ ANTI-PATTERN: Creates stale data
+// ANTI-PATTERN: Creates stale data
 const { data } = useQuery({ queryKey: ['todos'], queryFn: fetchTodos });
 const [todos, setTodos] = useState<Todo[]>([]);
 
@@ -540,7 +540,7 @@ useEffect(() => {
   if (data) setTodos(data);
 }, [data]);
 
-// ✅ CORRECT: Query is the source of truth
+// CORRECT: Query is the source of truth
 const { data: todos } = useQuery({ queryKey: ['todos'], queryFn: fetchTodos });
 ```
 
@@ -554,7 +554,7 @@ const { data: todos } = useQuery({ queryKey: ['todos'], queryFn: fetchTodos });
 ### Barrel Files in Application Code
 
 ```typescript
-// ❌ ANTI-PATTERN: index.ts that re-exports everything
+// ANTI-PATTERN: index.ts that re-exports everything
 // src/components/index.ts
 export * from './Button';
 export * from './Input';
@@ -563,7 +563,7 @@ export * from './Input';
 // Importing one thing loads everything!
 import { Button } from '@/components';
 
-// ✅ CORRECT: Direct imports
+// CORRECT: Direct imports
 import { Button } from '@/components/Button';
 ```
 
@@ -573,10 +573,10 @@ import { Button } from '@/components/Button';
 **Rule:** `_public`, `pages`, and `plugins` must NOT import content from `im`.
 
 ```typescript
-// ❌ ANTI-PATTERN: in src/11-renderer/pages/MyPage.tsx
+// ANTI-PATTERN: in src/11-renderer/pages/MyPage.tsx
 import { someUtil } from '@/im/utils'; // Illegal!
 
-// ✅ CORRECT: Move shared logic to _public or common
+// CORRECT: Move shared logic to _public or common
 import { someUtil } from '@/_public/utils';
 ```
 ```

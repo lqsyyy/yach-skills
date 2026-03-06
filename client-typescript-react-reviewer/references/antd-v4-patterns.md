@@ -7,7 +7,7 @@ Ant Design 4 uses a hook-based form management (`Form.useForm`).
 ### useForm Hook
 
 ```typescript
-// ✅ CORRECT
+// CORRECT
 const [form] = Form.useForm();
 
 return (
@@ -23,7 +23,7 @@ return (
 Use `initialValues` on the Form component rather than setting values via `useEffect`.
 
 ```typescript
-// ✅ CORRECT
+// CORRECT
 <Form initialValues={{ remember: true }}>
 ```
 
@@ -33,7 +33,7 @@ Use `initialValues` on the Form component rather than setting values via `useEff
 For large datasets, always ensure `scroll` is used to prevent layout overflow.
 
 ```typescript
-// ✅ Large tables
+// Large tables
 <Table 
   columns={columns} 
   dataSource={data} 
